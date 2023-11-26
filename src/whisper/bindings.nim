@@ -1,6 +1,4 @@
-const wheader = "../../whisper.cpp/whisper.h"
-
-{.link: "../../build/libwhisper.a".}
+const wheader = "whisper.h"
 
 const 
     SampleRate* = 16000
@@ -9,8 +7,8 @@ const
     ChunkSize* = 30
 
 type
-    Context* {.importc: "struct whisper_context", header: wheader.} = object
-    State* {.importc: "struct whisper_state", header: wheader.} = object
+    Context* {.importc: "struct whisper_context", incompleteStruct, header: wheader.} = object
+    State* {.importc: "struct whisper_state", incompleteStruct, header: wheader.} = object
     Position* = cint
     Token* = cint
     SeqId* = cint
@@ -79,6 +77,7 @@ type
         suppress_blank, suppress_non_speech_tokens: bool
         temperature, max_initial_ts, length_penalty: cfloat
         temperature_inc, entropy_thold, logprob_thold, no_speech_thold: cfloat
+        # TODO: Fix
         # greedy: Greedy
         # beam_search: BeamSearch
         new_segment_callback*: NewSegment
@@ -98,242 +97,242 @@ type
 proc initFromFileWithParams*(
     buffer: cstring; 
     params: ContextParams
-    ): ptr Context {.importc: "whisper_init_from_file_with_params", header: wheader.}
+    ): ptr Context {.importc: "whisper_init_from_file_with_params", dynlib: "libwhisper.so", dynlib: "libwhisper.so".}
 
 proc initFromBufferWithParams*(
     buffer: pointer;
     params: ContextParams
-    ): ptr Context {.importc: "whipser_init_from_buffer_with_params", header: wheader.}
+    ): ptr Context {.importc: "whipser_init_from_buffer_with_params", dynlib: "libwhisper.so".}
 
 proc initWithParams*(
     loader: ptr ModelLoader;
     params: ContextParams
-    ): ptr Context {.importc: "whisper_init_with_params", header: wheader.}
+    ): ptr Context {.importc: "whisper_init_with_params", dynlib: "libwhisper.so".}
 
 proc initFromFileWithParamsNoState*(
     model: cstring;
     params: ContextParams
-    ): ptr Context {.importc: "whisper_init_from_file_with_params_no_state", header: wheader.}
+    ): ptr Context {.importc: "whisper_init_from_file_with_params_no_state", dynlib: "libwhisper.so".}
 
 proc initFromBufferWithParamsNoState*(
     buffer: pointer;
     bufferSize: csize_t;
     params: ContextParams
-    ): ptr Context {.importc: "whisper_init_from_buffer_with_params_no_state", header: wheader.}
+    ): ptr Context {.importc: "whisper_init_from_buffer_with_params_no_state", dynlib: "libwhisper.so".}
 
 proc initWithParamsNoState*(
     loader: ptr ModelLoader;
     params: ContextParams
-    ): ptr Context {.importc: "whisper_init_with_params_no_state", header: wheader.}
+    ): ptr Context {.importc: "whisper_init_with_params_no_state", dynlib: "libwhisper.so".}
 
 proc initState*(
     ctx: ptr Context
-    ): ptr State {.importc: "whisper_init_state", header: wheader.}
+    ): ptr State {.importc: "whisper_init_state", dynlib: "libwhisper.so".}
 
 proc initOpenvinoEncoder*(
     ctx: ptr Context;
     modelPath, device, cache_dir: cstring
-): cint {.importc: "whisper_ctx_init_openvino_encoder", header: wheader.}
+): cint {.importc: "whisper_ctx_init_openvino_encoder", dynlib: "libwhisper.so".}
 
-proc free*(ctx: ptr Context) {.importc: "whisper_free", header: wheader.}
-proc freeState*(ctx: ptr State) {.importc: "whisper_free_state", header: wheader.}
-proc freeParams*(params: ptr FullParams) {.importc: "whisper_free_params", header: wheader.}
-proc freeContextParams*(params: ptr ContextParams) {.importc: "whisper_free_context_params", header: wheader.}
+proc free*(ctx: ptr Context) {.importc: "whisper_free", dynlib: "libwhisper.so".}
+proc freeState*(ctx: ptr State) {.importc: "whisper_free_state", dynlib: "libwhisper.so".}
+proc freeParams*(params: ptr FullParams) {.importc: "whisper_free_params", dynlib: "libwhisper.so".}
+proc freeContextParams*(params: ptr ContextParams) {.importc: "whisper_free_context_params", dynlib: "libwhisper.so".}
 
 proc pcmToMel*(
     ctx: ptr Context;
     samples: ptr cfloat;
     noSamples, noThreads: cint
-): cint {.importc: "whipser_pcm_to_mel", header: wheader.}
+): cint {.importc: "whipser_pcm_to_mel", dynlib: "libwhisper.so".}
 proc pcmToMelWithState*(
     ctx: ptr Context;
     state: ptr State;
     samples: ptr cfloat;
     noSamples, noThreads: cint
-): cint {.importc: "whipser_pcm_to_mel_with_state", header: wheader.}
+): cint {.importc: "whipser_pcm_to_mel_with_state", dynlib: "libwhisper.so".}
 proc pcmToMelPhaseVocoder*(
     ctx: ptr Context;
     samples: ptr cfloat;
     noSamples, noThreads: cint
-): cint {.importc: "whipser_pcm_to_mel_phase_vocoder", header: wheader.}
+): cint {.importc: "whipser_pcm_to_mel_phase_vocoder", dynlib: "libwhisper.so".}
 proc pcmToMelPhaseVocoderWithState*(
     ctx: ptr Context;
     state: ptr State;
     samples: ptr cfloat;
     noSamples, noThreads: cint
-): cint {.importc: "whisper_pcm_to_mel_phase_vocoder_with_state", header: wheader.}
+): cint {.importc: "whisper_pcm_to_mel_phase_vocoder_with_state", dynlib: "libwhisper.so".}
 proc setMel*(
     ctx: ptr Context;
     data: ptr cfloat;
     noLen, noMel: cint
-): cint {.importc: "whisper_set_mel", header: wheader.}
+): cint {.importc: "whisper_set_mel", dynlib: "libwhisper.so".}
 proc setMelWithState*(
     ctx: ptr Context;
     state: ptr State;
     data: ptr cfloat;
     noLen, noMel: cint
-): cint {.importc: "whisper_set_mel_with_state", header: wheader.}
+): cint {.importc: "whisper_set_mel_with_state", dynlib: "libwhisper.so".}
 
 proc encode*(
     ctx: ptr Context;
     offset, noThreads: cint
-    ): cint {.importc: "whisper_encode", header: wheader.}
+    ): cint {.importc: "whisper_encode", dynlib: "libwhisper.so".}
 proc encodeWithState*(
     ctx: ptr Context;
     state: ptr State;
     offset, noThreads: cint
-    ): cint {.importc: "whisper_encode_with_state", header: wheader.}
+    ): cint {.importc: "whisper_encode_with_state", dynlib: "libwhisper.so".}
 proc decode*(
     ctx: ptr Context;
     tokens: cstring;
     noTokens, noPast, noThreads: cint
-    ): cint {.importc: "whisper_decode", header: wheader.}
+    ): cint {.importc: "whisper_decode", dynlib: "libwhisper.so".}
 proc decodedWithState*(
     ctx: ptr Context;
     state: ptr State;
     tokens: cstring;
     noTokens, noPast, noThreads: cint
-): cint {.importc: "whisper_decode_with_state", header: wheader.}
+): cint {.importc: "whisper_decode_with_state", dynlib: "libwhisper.so".}
 
 proc tokenize*(
     ctx: ptr Context;
     text: cstring;
     tokens: ptr Token;
     noMaxTokens: cint
-): cint {.importc: "whisper_tokenize", header: wheader.}
+): cint {.importc: "whisper_tokenize", dynlib: "libwhisper.so".}
 
-proc langMaxId*(): cint {.importc: "whisper_lang_max_id", header: wheader.}
-proc langId*(lang: cstring): cint {.importc: "whisper_lang_id", header: wheader.}
-proc langStr*(id: cint): cstring {.importc: "whisper_lang_str", header: wheader.}
-proc langStrFull*(id: cint): cstring {.importc: "whisper_lang_str_full", header: wheader.}
+proc langMaxId*(): cint {.importc: "whisper_lang_max_id", dynlib: "libwhisper.so".}
+proc langId*(lang: cstring): cint {.importc: "whisper_lang_id", dynlib: "libwhisper.so".}
+proc langStr*(id: cint): cstring {.importc: "whisper_lang_str", dynlib: "libwhisper.so".}
+proc langStrFull*(id: cint): cstring {.importc: "whisper_lang_str_full", dynlib: "libwhisper.so".}
 
 proc langAutoDetect*(
     ctx: ptr Context;
     offsetMs, noThreads: cint;
     langProbs: ptr cfloat
-): cint {.importc: "whipser_lang_auto_detect", header: wheader.}
+): cint {.importc: "whipser_lang_auto_detect", dynlib: "libwhisper.so".}
 
 proc langAutoDetectWithState*(
     ctx: ptr Context;
     state: ptr State;
     offsetMs, noThreads: cint;
     langProbs: ptr cfloat
-): cint {.importc: "whipser_lang_auto_detect_with_state", header: wheader.}
+): cint {.importc: "whipser_lang_auto_detect_with_state", dynlib: "libwhisper.so".}
 
-proc nLen*(ctx: ptr Context): cint {.importc: "whisper_n_len", header: wheader.}
-proc nLenFromState*(ctx: ptr Context): cint {.importc: "whisper_n_len_from_state", header: wheader.}
-proc nVocab*(ctx: ptr Context): cint {.importc: "whisper_n_vocab", header: wheader.}
-proc nTextCtx*(ctx: ptr Context): cint {.importc: "whisper_n_text_ctx", header: wheader.}
-proc nAudioCtx*(ctx: ptr Context): cint {.importc: "whisper_n_audio_ctx", header: wheader.}
-proc isMultilingual*(ctx: ptr Context): cint {.importc: "whisper_is_multilingual", header: wheader.}
+proc nLen*(ctx: ptr Context): cint {.importc: "whisper_n_len", dynlib: "libwhisper.so".}
+proc nLenFromState*(ctx: ptr Context): cint {.importc: "whisper_n_len_from_state", dynlib: "libwhisper.so".}
+proc nVocab*(ctx: ptr Context): cint {.importc: "whisper_n_vocab", dynlib: "libwhisper.so".}
+proc nTextCtx*(ctx: ptr Context): cint {.importc: "whisper_n_text_ctx", dynlib: "libwhisper.so".}
+proc nAudioCtx*(ctx: ptr Context): cint {.importc: "whisper_n_audio_ctx", dynlib: "libwhisper.so".}
+proc isMultilingual*(ctx: ptr Context): cint {.importc: "whisper_is_multilingual", dynlib: "libwhisper.so".}
 
-proc modelNVocab*(ctx: ptr Context): cint {.importc: "whisper_model_n_vocab", header: wheader.}
-proc modelNAudioCtx*(ctx: ptr Context): cint {.importc: "whisper_model_n_audio_ctx", header: wheader.}
-proc modelNAudioState*(ctx: ptr Context): cint {.importc: "whisper_model_n_audio_state", header: wheader.}
-proc modelNAudioHead*(ctx: ptr Context): cint {.importc: "whisper_model_n_audio_head", header: wheader.}
-proc modelNAudioLayer*(ctx: ptr Context): cint {.importc: "whisper_model_n_audio_layer", header: wheader.}
-proc modelNTextCtx*(ctx: ptr Context): cint {.importc: "whisper_model_n_text_ctx", header: wheader.}
-proc modelNTextState*(ctx: ptr Context): cint {.importc: "whisper_model_n_text_state", header: wheader.}
-proc modelNTextHead*(ctx: ptr Context): cint {.importc: "whisper_model_n_text_head", header: wheader.}
-proc modelNTextLayer*(ctx: ptr Context): cint {.importc: "whisper_model_n_text_layer", header: wheader.}
-proc modelNMels*(ctx: ptr Context): cint {.importc: "whisper_model_n_mels", header: wheader.}
-proc modelFType*(ctx: ptr Context): cint {.importc: "whisper_model_n_ftype", header: wheader.}
-proc modelType*(ctx: ptr Context): cint {.importc: "whisper_model_n_type", header: wheader.}
+proc modelNVocab*(ctx: ptr Context): cint {.importc: "whisper_model_n_vocab", dynlib: "libwhisper.so".}
+proc modelNAudioCtx*(ctx: ptr Context): cint {.importc: "whisper_model_n_audio_ctx", dynlib: "libwhisper.so".}
+proc modelNAudioState*(ctx: ptr Context): cint {.importc: "whisper_model_n_audio_state", dynlib: "libwhisper.so".}
+proc modelNAudioHead*(ctx: ptr Context): cint {.importc: "whisper_model_n_audio_head", dynlib: "libwhisper.so".}
+proc modelNAudioLayer*(ctx: ptr Context): cint {.importc: "whisper_model_n_audio_layer", dynlib: "libwhisper.so".}
+proc modelNTextCtx*(ctx: ptr Context): cint {.importc: "whisper_model_n_text_ctx", dynlib: "libwhisper.so".}
+proc modelNTextState*(ctx: ptr Context): cint {.importc: "whisper_model_n_text_state", dynlib: "libwhisper.so".}
+proc modelNTextHead*(ctx: ptr Context): cint {.importc: "whisper_model_n_text_head", dynlib: "libwhisper.so".}
+proc modelNTextLayer*(ctx: ptr Context): cint {.importc: "whisper_model_n_text_layer", dynlib: "libwhisper.so".}
+proc modelNMels*(ctx: ptr Context): cint {.importc: "whisper_model_n_mels", dynlib: "libwhisper.so".}
+proc modelFType*(ctx: ptr Context): cint {.importc: "whisper_model_n_ftype", dynlib: "libwhisper.so".}
+proc modelType*(ctx: ptr Context): cint {.importc: "whisper_model_n_type", dynlib: "libwhisper.so".}
 
-proc getLogits*(ctx: ptr Context): ptr cfloat {.importc: "whisper_get_logits", header: wheader.}
-proc getLogitsFromState*(ctx: ptr Context): ptr cfloat {.importc: "whisper_get_logits_from_state", header: wheader.}
+proc getLogits*(ctx: ptr Context): ptr cfloat {.importc: "whisper_get_logits", dynlib: "libwhisper.so".}
+proc getLogitsFromState*(ctx: ptr Context): ptr cfloat {.importc: "whisper_get_logits_from_state", dynlib: "libwhisper.so".}
 
-proc tokenToStr*(ctx: ptr Context; token: Token): cstring {.importc: "whisper_token_to_str", header: wheader.}
-proc modelTypeReadable*(ctx: ptr Context): cstring {.importc: "whisper_model_type_readable", header: wheader.}
+proc tokenToStr*(ctx: ptr Context; token: Token): cstring {.importc: "whisper_token_to_str", dynlib: "libwhisper.so".}
+proc modelTypeReadable*(ctx: ptr Context): cstring {.importc: "whisper_model_type_readable", dynlib: "libwhisper.so".}
 
-proc tokenEot*(ctx: ptr Context): Token {.importc: "whisper_token_eot", header: wheader.}
-proc tokenSot*(ctx: ptr Context): Token {.importc: "whisper_token_sot", header: wheader.}
-proc tokenSolm*(ctx: ptr Context): Token {.importc: "whisper_token_solm", header: wheader.}
-proc tokenPrv*(ctx: ptr Context): Token {.importc: "whisper_token_prev", header: wheader.}
-proc tokenNosp*(ctx: ptr Context): Token {.importc: "whisper_token_nosp", header: wheader.}
-proc tokenNot*(ctx: ptr Context): Token {.importc: "whisper_token_not", header: wheader.}
-proc tokenBeg*(ctx: ptr Context): Token {.importc: "whisper_token_beg", header: wheader.}
-proc tokenLang*(ctx: ptr Context; langId: cint): Token {.importc: "whisper_token_lang", header: wheader.}
+proc tokenEot*(ctx: ptr Context): Token {.importc: "whisper_token_eot", dynlib: "libwhisper.so".}
+proc tokenSot*(ctx: ptr Context): Token {.importc: "whisper_token_sot", dynlib: "libwhisper.so".}
+proc tokenSolm*(ctx: ptr Context): Token {.importc: "whisper_token_solm", dynlib: "libwhisper.so".}
+proc tokenPrv*(ctx: ptr Context): Token {.importc: "whisper_token_prev", dynlib: "libwhisper.so".}
+proc tokenNosp*(ctx: ptr Context): Token {.importc: "whisper_token_nosp", dynlib: "libwhisper.so".}
+proc tokenNot*(ctx: ptr Context): Token {.importc: "whisper_token_not", dynlib: "libwhisper.so".}
+proc tokenBeg*(ctx: ptr Context): Token {.importc: "whisper_token_beg", dynlib: "libwhisper.so".}
+proc tokenLang*(ctx: ptr Context; langId: cint): Token {.importc: "whisper_token_lang", dynlib: "libwhisper.so".}
 
-proc tokenTranslate*(ctx: ptr Context): Token {.importc: "whisper_token_translate", header: wheader.}
-proc tokenTranscribe*(ctx: ptr Context): Token {.importc: "whisper_token_transcribe", header: wheader.}
+proc tokenTranslate*(ctx: ptr Context): Token {.importc: "whisper_token_translate", dynlib: "libwhisper.so".}
+proc tokenTranscribe*(ctx: ptr Context): Token {.importc: "whisper_token_transcribe", dynlib: "libwhisper.so".}
 
-proc printTimings*(ctx: ptr Context) {.importc: "whisper_print_timings", header: wheader.}
-proc resetTimings*(ctx: ptr Context) {.importc: "whisper_reset_timings", header: wheader.}
+proc printTimings*(ctx: ptr Context) {.importc: "whisper_print_timings", dynlib: "libwhisper.so".}
+proc resetTimings*(ctx: ptr Context) {.importc: "whisper_reset_timings", dynlib: "libwhisper.so".}
 
-proc printSystemInfo*(): cstring {.importc: "whisper_print_system_info", header: wheader.}
+proc printSystemInfo*(): cstring {.importc: "whisper_print_system_info", dynlib: "libwhisper.so".}
 
-proc contextDefaultParamsByRef*(): ptr ContextParams {.importc: "whisper_context_default_params_by_ref", header: wheader.}
-proc contextDefaultParams*(): ContextParams {.importc: "whisper_context_default_params", header: wheader.}
-proc fullDefaultParamsByRef*(strategy: SamplingStrategy): ptr FullParams {.importc: "whisper_full_default_params", header: wheader.}
-proc fullDefaultParams*(strategy: SamplingStrategy): FullParams {.importc: "whisper_full_default_params", header: wheader.}
+proc contextDefaultParamsByRef*(): ptr ContextParams {.importc: "whisper_context_default_params_by_ref", dynlib: "libwhisper.so".}
+proc contextDefaultParams*(): ContextParams {.importc: "whisper_context_default_params", dynlib: "libwhisper.so".}
+proc fullDefaultParamsByRef*(strategy: SamplingStrategy): ptr FullParams {.importc: "whisper_full_default_params_by_ref", dynlib: "libwhisper.so".}
+proc fullDefaultParams*(strategy: SamplingStrategy): FullParams {.importc: "whisper_full_default_params", dynlib: "libwhisper.so".}
 
 proc full*(
     ctx: ptr Context;
     params: FullParams;
     buffer: ptr cfloat;
     bufferSize: cint
-): cint {.importc: "whisper_full", header: wheader.}
+): cint {.importc: "whisper_full", dynlib: "libwhisper.so".}
 proc fullWithState*(
     ctx: ptr Context;
     state: ptr State;
     params: FullParams;
     buffer: ptr cfloat;
     bufferSize: cint
-): cint {.importc: "whisper_full_with_state", header: wheader.}
+): cint {.importc: "whisper_full_with_state", dynlib: "libwhisper.so".}
 proc fullParallel*(
     ctx: ptr Context;
     params: FullParams;
     buffer: ptr cfloat;
     bufferSize, noProcessors: cint
-): cint {.importc: "whisper_full_parallel", header: wheader.}
+): cint {.importc: "whisper_full_parallel", dynlib: "libwhisper.so".}
 
-proc fullNSegments*(ctx: ptr Context): cint {.importc: "whisper_full_n_segments", header: wheader.}
-proc fullNSegmentsFromState*(state: ptr State): cint {.importc: "whisper_full_n_segments__from_state", header: wheader.}
+proc fullNSegments*(ctx: ptr Context): cint {.importc: "whisper_full_n_segments", dynlib: "libwhisper.so".}
+proc fullNSegmentsFromState*(state: ptr State): cint {.importc: "whisper_full_n_segments__from_state", dynlib: "libwhisper.so".}
 
-proc fullLangId*(ctx: ptr Context): cint {.importc: "whisper_full_lang_id", header: wheader.}
+proc fullLangId*(ctx: ptr Context): cint {.importc: "whisper_full_lang_id", dynlib: "libwhisper.so".}
 
-proc fullLangIdFromState*(state: ptr State): cint {.importc: "whisper_full_lang_id_from_state", header: wheader.}
+proc fullLangIdFromState*(state: ptr State): cint {.importc: "whisper_full_lang_id_from_state", dynlib: "libwhisper.so".}
 
-proc fullGetSegmentT0*(ctx: ptr Context; segment: cint): clonglong {.importc: "whisper_full_get_segment_t0", header: wheader.}
-proc fullGetSegmentT0FromState*(state: ptr State; segment: cint): clonglong {.importc: "whisper_full_get_segment_t0_from_state", header: wheader.}
+proc fullGetSegmentT0*(ctx: ptr Context; segment: cint): clonglong {.importc: "whisper_full_get_segment_t0", dynlib: "libwhisper.so".}
+proc fullGetSegmentT0FromState*(state: ptr State; segment: cint): clonglong {.importc: "whisper_full_get_segment_t0_from_state", dynlib: "libwhisper.so".}
 
-proc fullGetSegmentT1*(ctx: ptr Context; segment: cint): clonglong {.importc: "whisper_full_get_segment_t1", header: wheader.}
-proc fullGetSegmentT1FromState*(state: ptr State; segment: cint): clonglong {.importc: "whisper_full_get_segment_t1_from_state", header: wheader.}
+proc fullGetSegmentT1*(ctx: ptr Context; segment: cint): clonglong {.importc: "whisper_full_get_segment_t1", dynlib: "libwhisper.so".}
+proc fullGetSegmentT1FromState*(state: ptr State; segment: cint): clonglong {.importc: "whisper_full_get_segment_t1_from_state", dynlib: "libwhisper.so".}
 
-proc fullGetSegmentSpeakerTurnNext*(state: ptr State; segment: cint): bool {.importc: "whisper_full_get_segment_speaker_turn_next", header: wheader.}
+proc fullGetSegmentSpeakerTurnNext*(state: ptr State; segment: cint): bool {.importc: "whisper_full_get_segment_speaker_turn_next", dynlib: "libwhisper.so".}
 proc fullGetSegmentSpeakerTurnNextFromState*(
     state: ptr State;
     segment: cint
-): bool {.importc: "whisper_full_get_segment_speaker_turn_next_from_state", header: wheader.}
+): bool {.importc: "whisper_full_get_segment_speaker_turn_next_from_state", dynlib: "libwhisper.so".}
 
-proc fullGetSegmentText*(ctx: ptr Context; segment: cint): cstring {.importc: "whisper_full_get_segment_text", header: wheader.}
-proc fullGetSegmentTextFromState*(ctx: ptr State; segment: cint): cstring {.importc: "whisper_full_get_segment_text_from_state", header: wheader.}
+proc fullGetSegmentText*(ctx: ptr Context; segment: cint): cstring {.importc: "whisper_full_get_segment_text", dynlib: "libwhisper.so".}
+proc fullGetSegmentTextFromState*(ctx: ptr State; segment: cint): cstring {.importc: "whisper_full_get_segment_text_from_state", dynlib: "libwhisper.so".}
 
-proc fullNTokens*(ctx: ptr Context; segment: cint): cint {.importc: "whisper_full_n_tokens", header: wheader.}
-proc fullNTokensFromState*(state: ptr State; segment: cint): cint {.importc: "whisper_full_n_tokens_from_state", header: wheader.}
+proc fullNTokens*(ctx: ptr Context; segment: cint): cint {.importc: "whisper_full_n_tokens", dynlib: "libwhisper.so".}
+proc fullNTokensFromState*(state: ptr State; segment: cint): cint {.importc: "whisper_full_n_tokens_from_state", dynlib: "libwhisper.so".}
 
-proc fullGetTokenNext*(ctx: ptr Context; segment, token: cint): cstring {.importc: "whisper_full_get_token_next", header: wheader.}
-proc fullGetTokenNextFromState*(ctx: ptr Context; state: ptr State; segment, token: cint): cstring {.importc: "whisper_full_get_token_next_from_state", header: wheader.}
+proc fullGetTokenNext*(ctx: ptr Context; segment, token: cint): cstring {.importc: "whisper_full_get_token_next", dynlib: "libwhisper.so".}
+proc fullGetTokenNextFromState*(ctx: ptr Context; state: ptr State; segment, token: cint): cstring {.importc: "whisper_full_get_token_next_from_state", dynlib: "libwhisper.so".}
 
-proc fullGetTokenId*(ctx: ptr Context; segment, token: cint): Token {.importc: "whisper_full_get_token_id", header: wheader.}
-proc fullGetTokenIdFromState*(state: ptr State; segment, token: cint): Token {.importc: "whisper_full_get_token_id_from_state", header: wheader.}
+proc fullGetTokenId*(ctx: ptr Context; segment, token: cint): Token {.importc: "whisper_full_get_token_id", dynlib: "libwhisper.so".}
+proc fullGetTokenIdFromState*(state: ptr State; segment, token: cint): Token {.importc: "whisper_full_get_token_id_from_state", dynlib: "libwhisper.so".}
 
-proc fullGetTokenData*(ctx: ptr Context; segment, token: cint): TokenData {.importc: "whisper_full_get_token_data", header: wheader.}
-proc fullGetTokenDataFromState*(state: ptr State; segment, token: cint): TokenData {.importc: "whisper_full_get_token_data_from_state", header: wheader.}
+proc fullGetTokenData*(ctx: ptr Context; segment, token: cint): TokenData {.importc: "whisper_full_get_token_data", dynlib: "libwhisper.so".}
+proc fullGetTokenDataFromState*(state: ptr State; segment, token: cint): TokenData {.importc: "whisper_full_get_token_data_from_state", dynlib: "libwhisper.so".}
 
-proc fullGetTokenP*(ctx: ptr Context; segment, token: cint): cfloat {.importc: "whisper_full_get_token_p", header: wheader.}
-proc fullGetTokenPFromState*(ctx: ptr Context; segment, token: cint): cfloat {.importc: "whisper_full_get_token_p", header: wheader.}
+proc fullGetTokenP*(ctx: ptr Context; segment, token: cint): cfloat {.importc: "whisper_full_get_token_p", dynlib: "libwhisper.so".}
+proc fullGetTokenPFromState*(ctx: ptr Context; segment, token: cint): cfloat {.importc: "whisper_full_get_token_p", dynlib: "libwhisper.so".}
 
-proc benchMemcpy*(threads: cint): cint {.importc: "whisper_bench_memcpy", header: wheader.}
-proc benchMemcpyStr*(threads: cint): cstring {.importc: "whisper_bench_memcpy_str", header: wheader.}
-proc benchMemcpyGgmlMulMat*(threads: cint): cint {.importc: "whisper_bench_ggml_mul_mat", header: wheader.}
-proc benchMemcpyGgmlMulMatStr*(threads: cint): cstring {.importc: "whisper_bench_ggml_mul_mat_str", header: wheader.}
+proc benchMemcpy*(threads: cint): cint {.importc: "whisper_bench_memcpy", dynlib: "libwhisper.so".}
+proc benchMemcpyStr*(threads: cint): cstring {.importc: "whisper_bench_memcpy_str", dynlib: "libwhisper.so".}
+proc benchMemcpyGgmlMulMat*(threads: cint): cint {.importc: "whisper_bench_ggml_mul_mat", dynlib: "libwhisper.so".}
+proc benchMemcpyGgmlMulMatStr*(threads: cint): cstring {.importc: "whisper_bench_ggml_mul_mat_str", dynlib: "libwhisper.so".}
 
 type 
-    GgmlLogLevel*{.importc: "enum ggml_log_level", header: "ggml.h".} = enum
-        Error = 2,
-        Warn = 3,
-        Info = 4
-    GgmlLogCallback* = proc(level: GgmlLogLevel; text: cstring; userData: pointer): void
-proc logSet*(callback: GgmlLogCallback; userData: pointer): void {.importc: "whisper_log_set", header: wheader.}
+   GgmlLogLevel*{.importc: "enum ggml_log_level", header: "ggml.h".} = enum
+       Error = 2,
+       Warn = 3,
+       Info = 4
+   GgmlLogCallback* = proc(level: GgmlLogLevel; text: cstring; userData: pointer): void
+proc logSet*(callback: GgmlLogCallback; userData: pointer): void {.importc: "whisper_log_set", dynlib: "libwhisper.so".}
