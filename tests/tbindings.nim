@@ -11,22 +11,22 @@ import std/streams
 import whisper/bindings
 
 test "Full Params by Ref":
-    var params = fullDefaultParamsByRef(SamplingStrategy.Greedy)
+    var params = whisperFullDefaultParamsByRef(WHISPER_SAMPLING_GREEDY)
     doAssert params != nil
-    freeParams(params)
+    whisperFreeParams(params)
 
 test "Context Params by Ref":
-    var params = contextDefaultParamsByRef()
+    var params = whisperContextDefaultParamsByRef()
     doAssert params != nil
-    freeContextParams(params)
+    whisperFreeContextParams(params)
 
 test "Init from file with params":
     let file = "ggml-base.en.bin".cstring
     var 
-        params = contextDefaultParams()
-        ctx = initFromFileWithParams(file, params)
+        params = whisperContextDefaultParams()
+        ctx = whisperInitFromFileWithParams(file, params)
     doAssert ctx != nil
-    free(ctx)
+    whisperFree(ctx)
 
 test "Init from buffer with params":
     let file = "ggml-base.en.bin"
@@ -39,7 +39,7 @@ test "Init from buffer with params":
         buffer = f.readAll()
     f.close()
     var
-        params = contextDefaultParams()
-        ctx = initFromBufferWithParams(buffer[0].addr, buffer.len.csize_t, params)
+        params = whisperContextDefaultParams()
+        ctx = whisperInitFromBufferWithParams(buffer[0].addr, buffer.len.csize_t, params)
     doAssert ctx != nil
-    free(ctx)
+    whisperFree(ctx)
