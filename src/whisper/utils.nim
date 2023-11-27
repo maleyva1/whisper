@@ -6,6 +6,11 @@ type
     WaveException* = object of CatchableError
 
 proc toInt16Seq(buffer: seq[byte]): seq[int16] =
+    ## Wave reads a sequence of bytes, but the underling
+    ## WAVE file is of signed 16-bit numbers. This proc
+    ## takes the sequence of bytes and turns them into the
+    ## proper sequence of int16.
+    ## 
     result = newSeq[int16]()
     for i in countup(0, buffer.len, 2):
         if i in buffer.low .. buffer.high:
