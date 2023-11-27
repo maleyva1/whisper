@@ -3,6 +3,19 @@ from std/os import fileExists
 
 import whisper/highlevel
 
+test "Liftime tracking hooks":
+    let options = newDefaultOptions("ggml-base.en.bin")
+    let 
+        w = newWhisper(options)
+        x: Whisper = w
+        y: Whisper = x
+        z: WHisper = y
+    try:
+        discard z.infer("samples/jfk.wav")
+    except CatchableError:
+        fail()
+
+
 test "End to end usage":
     if not fileExists("ggml-base.en.bin"):
         stderr.writeLine("ggml-base.en.bin does not exist!")
