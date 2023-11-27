@@ -70,8 +70,19 @@ proc infer*(whisper: Whisper; audioSamplePath: string; language: string = "en"):
     for i in countup(0 , n - 1):
         result &= whisperFullGetSegmentText(whisper.context, i.cint)
 
-proc `=destroy`*(whisper: Whisper) =
+proc `=destroy`(self: Whisper) =
     ## Deallocates the whisper context
     ## 
-    if whisper.context != nil:
-        whisperFree(whisper.context)
+    if self.context != nil:
+        whisperFree(self.context)
+
+proc `=sink`(dest: var Whisper; source: Whisper) =
+    `=destroy`(dest)
+    wasMoved(dest)
+    dest.context = source.context
+
+proc `=copy`(dest: var Whisper; source: Whisper) =
+    if dest.context != source.context:
+        `=destroy`(dest)
+        wasMoved(dest)
+        copyMem(dest.context, source.context, sizeof(source.context))
