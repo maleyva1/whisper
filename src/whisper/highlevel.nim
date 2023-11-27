@@ -1,7 +1,9 @@
 import bindings
+import utils
 
 type
     WhisperAllocationError* = object of CatchableError
+    WhisperInferenceError* = object of CatchableError
     ModelLoadingKind* = enum
         FromFile, FromBuffer
     WhisperOptions* = object
@@ -18,14 +20,12 @@ proc newDefaultOptions*(): WhisperOptions =
     result.params = contextDefaultParams()
 
 proc newDefaultOptions*(file: string): WhisperOptions =
+    result = WhisperOptions(mlKind: FromFile, filePath: file)
     result.params = contextDefaultParams()
-    result.mlKind = FromFile
-    result.filePath = file
 
 proc newDefaultOptions*(buffer: seq[byte]): WhisperOptions =
+    result = WhisperOptions(mlKind: FromBuffer, buffer: buffer)
     result.params = contextDefaultParams()
-    result.mlKind = FromBuffer
-    result.buffer = buffer
 
 proc newWhisper*(options: WhisperOptions): Whisper =
     case options.mlKind:
@@ -38,14 +38,35 @@ proc newWhisper*(options: WhisperOptions): Whisper =
     if result.context == nil:
         raise newException(WhisperAllocationError, "Unable to initialize Whisper context")
 
-proc transcribe(whisper: Whisper; buffer: seq[cfloat]): bool =
+proc transcribe*(whisper: Whisper; buffer: seq[float]): string =
+    ## Transcribe from `buffer`. Returns the transcribed text.
+    ## 
     let fullParams = fullDefaultParams(SamplingStrategy.Greedy)
-    return full(whisper.context, fullParams, buffer[0].addr, buffer.len.cint) == 0
+    var temp = newSeq[cfloat]()
+    for i in buffer:
+        temp.add(i.cfloat)
+    if full(whisper.context, fullParams, temp[0].addr, temp.len.cint) != 0:
+        raise newException(WhisperInferenceError, "Unable to transcribe from audio")
+    let n = fullNSegments(whisper.context)
+    for i in countup(0 , n - 1):
+        result &= fullGetSegmentText(whisper.context, i.cint)
 
-proc transcribe*(whisper: Whisper; audioSamplePath: string): bool =
+proc transcribe*(whisper: Whisper; audioSamplePath: string): string =
+    ## Transcribe from `audioSamplePath`. Returns the transcribed
+    ## text.
+    ## 
+    ## **Note**: `audioSamplePath` must be a 16 kHz WAV file
+    ## 
     let fullParams = fullDefaultParams(SamplingStrategy.Greedy)
-    return full(whisper.context, fullParams, nil, 0) == 0
+    var buffer = readWav(audioSamplePath)
+    if full(whisper.context, fullParams, buffer[0].addr, buffer.len.cint) != 0:
+        raise newException(WhisperInferenceError, "Unable to transcribe from audio")
+    let n = fullNSegments(whisper.context)
+    for i in countup(0 , n - 1):
+        result &= fullGetSegmentText(whisper.context, i.cint)
 
 proc `=destroy`*(whisper: Whisper) =
+    ## Deallocates the whisper context
+    ## 
     if whisper.context != nil:
         free(whisper.context)

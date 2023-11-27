@@ -44,19 +44,19 @@ type
         state: ptr State;
         nNew: cint;
         userData: pointer
-    ): void
+    ): void {.cdecl.}
     Progress* = proc(
         ctx: ptr Context;
         state: ptr State;
         progress: cint;
         userData: pointer
-    ): void
+    ): void {.cdecl.}
     EncoderBegin* = proc(
         ctx: ptr Context;
         state: ptr State;
         userData: pointer
-    ): bool
-    Abort* = proc(user_data: pointer): bool
+    ): bool {.cdecl.}
+    Abort* = proc(user_data: pointer): bool {.cdecl.}
     LogitsFilter* = proc(
         ctx: ptr Context;
         state: ptr State;
@@ -64,7 +64,7 @@ type
         nTokens: cint;
         logits: ptr cfloat;
         userData: pointer
-    ): void
+    ): void {.cdecl.}
     GreedyO* = object
         best_of*: cint
     BeamSearchO* = object
