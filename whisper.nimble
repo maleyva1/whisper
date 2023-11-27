@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "Mark Leyva"
-description   = "A new awesome nimble package"
+description   = "Nim bindings for Whisper.cpp"
 license       = "MIT"
 srcDir        = "src"
 
