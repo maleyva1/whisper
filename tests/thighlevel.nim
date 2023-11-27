@@ -11,7 +11,7 @@ test "End to end usage":
     let options = newDefaultOptions("ggml-base.en.bin")
     let w = newWhisper(options)
     try:
-        let result = w.transcribe("samples/jfk.wav")
+        let result = w.infer("samples/jfk.wav")
         doAssert result == " And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
     except WhisperInferenceError:
         fail()
