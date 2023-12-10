@@ -50,6 +50,8 @@ proc newWhisper*(options: WhisperOptions): Whisper =
                     options.buffer.len.csize_t, options.params)
     if result.context == nil:
         raise newException(WhisperAllocationError, "Unable to initialize Whisper context")
+    else:
+        discard whisperCtxInitOpenvinoEncoder(result.context, nil, "CPU".cstring, nil)
 
 proc sharedLogic(whisper: Whisper; conv: ConvFunc; language: string; translate: bool): string =
     ## Shared logic
@@ -60,8 +62,11 @@ proc sharedLogic(whisper: Whisper; conv: ConvFunc; language: string; translate: 
         if whisperIsMultilingual(whisper.context) == 0:
             raise newException(WhisperInferenceError, "Loaded whisper model is not multilingual")
     var fullParams = whisperFullDefaultParams(WHISPER_SAMPLING_GREEDY)
+    fullParams.strategy = WHISPER_SAMPLING_BEAM_SEARCH
     fullParams.language = language.cstring
     fullParams.translate = translate
+    fullParams.greedy.bestOf = 5
+    fullParams.beamSearch.beamSize = 5
     var buffer = conv()
     if whisperFull(whisper.context, fullParams, buffer[0].addr, buffer.len.cint) != 0:
         raise newException(WhisperInferenceError, "Unable to transcribe from audio")

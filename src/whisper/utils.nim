@@ -1,5 +1,8 @@
 import wave
 
+import std/sequtils
+from std/sugar import `=>`
+
 const CommonSampleRate = 16000'u32
 
 type
@@ -26,9 +29,9 @@ proc readWav*(path: string): seq[cfloat] {.raises: [WaveException, IOError,
     ## format for libwhisper.
     ##
     var wav = openWaveReadFile(path)
-    if wav.numChannels != 1 and wav.numChannels != 2:
+    if wav.numChannels != 1:
         wav.close()
-        raise newException(WaveException, "WAV is not mono nor stereo")
+        raise newException(WaveException, "WAV is not mono")
     if wav.sampleRate != CommonSampleRate:
         wav.close()
         raise newException(WaveException, "WAV is not 16kHz")
@@ -38,16 +41,9 @@ proc readWav*(path: string): seq[cfloat] {.raises: [WaveException, IOError,
     # blockAlign is defined numChannels * bitsPerSample / 8
     # Frames (or samples) are defined as sizeOfData / blockAlign
     var pcm16 = wav.readFrames(wav.blockAlign().int).toInt16Seq()
-    result = newSeq[cfloat](wav.dataSubChunkSize())
     case wav.numChannels:
         of numChannelsMono:
-            for i in pcm16:
-                let t = i.float / 32768.0
-                result.add(t.cfloat)
-        of numChannelsStereo:
-            for i in countup(0, (wav.numFrames - 1).int):
-                let ch = pcm16[2*i].cfloat + (pcm16[2*i + 1].cfloat / 65536.0)
-                result.add(ch)
+            result = pcm16.map(e => (e.float / 32768.0).cfloat)
         else:
             discard
     wav.close()

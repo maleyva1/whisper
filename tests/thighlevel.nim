@@ -1,6 +1,5 @@
 import std/unittest
 from std/os import fileExists
-import std/streams
 
 import whisper/highlevel
 
@@ -29,7 +28,8 @@ test "End to end usage":
     let w = newWhisper(options)
     try:
         let result = w.infer("samples/jfk.wav")
-        doAssert result == " And so my fellow Americans ask not what your country can do for you. Ask what you can do for your country."
+        echo result
+        doAssert result == " And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
     except WhisperInferenceError:
         fail()
 
@@ -53,7 +53,7 @@ test "High level translation":
     try:
         let result = w.infer("samples/spanish.wav", "es", true)
         echo result
-        doAssert result == " Hello, how are you?"
+        doAssert result == " Hi, how are you?"
     except WhisperInferenceError:
         stderr.writeLine(getCurrentExceptionMsg())
         fail()
