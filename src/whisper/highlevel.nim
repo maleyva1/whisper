@@ -50,7 +50,7 @@ proc newWhisper*(options: WhisperOptions): Whisper =
     if result.context == nil:
         raise newException(WhisperAllocationError, "Unable to initialize Whisper context")
 
-proc infer*(whisper: Whisper; audioSamplePath: string; language: string = "en"): string =
+proc infer*(whisper: Whisper; audioSamplePath: string; language: string = "en"; translate: bool = false): string =
     ## Transcribe from `audioSamplePath`, assuming the audio is in language `language`.
     ## Returns the transcribed Text.
     ## 
@@ -58,11 +58,14 @@ proc infer*(whisper: Whisper; audioSamplePath: string; language: string = "en"):
     ## 
     ## **Note**: Blocking
     ## 
+    if language != "auto" and whisperLangId(language.cstring) == -1:
+        raise newException(WhisperInferenceError, language & " is unknown")
     if language != "en":
-        if whisperIsMultilingual(whisper.context) != 0:
-            raise newException(WhisperInferenceError, "")
+        if whisperIsMultilingual(whisper.context) == 0:
+            raise newException(WhisperInferenceError, "Loaded whisper model is not multilingual")
     var fullParams = whisperFullDefaultParams(WHISPER_SAMPLING_GREEDY)
     fullParams.language = language.cstring
+    fullParams.translate = translate
     var buffer = readWav(audioSamplePath)
     if whisperFull(whisper.context, fullParams, buffer[0].addr, buffer.len.cint) != 0:
         raise newException(WhisperInferenceError, "Unable to transcribe from audio")
