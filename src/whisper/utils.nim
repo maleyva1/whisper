@@ -12,13 +12,12 @@ proc toInt16Seq(buffer: seq[byte]): seq[int16] =
     ## proper sequence of int16.
     ## 
     result = newSeq[int16]()
-    for i in countup(0, buffer.len, 2):
-        if i in buffer.low .. buffer.high:
-            let
-                upper = buffer[i + 1].int16
-                lower = buffer[i].int16
-                t: int16 = (upper shl 8) or lower
-            result.add(t)
+    for i in countup(0, buffer.len - 1, 2):
+        let
+            upper = buffer[i + 1].int16
+            lower = buffer[i].int16
+            t: int16 = (upper shl 8) or lower
+        result.add(t)
 
 proc readWav*(path: string): seq[cfloat] {.raises: [WaveException, IOError,
         OSError, WaveRIFFChunkDescriptorError, WaveFormatSubChunkError,
@@ -36,8 +35,10 @@ proc readWav*(path: string): seq[cfloat] {.raises: [WaveException, IOError,
     if wav.bitsPerSample != 16:
         wav.close()
         raise newException(WaveException, "WAV is not 16 bits per sample")
-    var pcm16 = wav.readFrames(2).toInt16Seq()
-    result = newSeq[cfloat]()
+    # blockAlign is defined numChannels * bitsPerSample / 8
+    # Frames (or samples) are defined as sizeOfData / blockAlign
+    var pcm16 = wav.readFrames(wav.blockAlign().int).toInt16Seq()
+    result = newSeq[cfloat](wav.dataSubChunkSize())
     case wav.numChannels:
         of numChannelsMono:
             for i in pcm16:

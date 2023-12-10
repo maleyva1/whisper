@@ -21,7 +21,7 @@ test "Context Params by Ref":
     whisperFreeContextParams(params)
 
 test "Init from file with params":
-    let file = "ggml-base.en.bin".cstring
+    let file = "ggml-base.bin".cstring
     var 
         params = whisperContextDefaultParams()
         ctx = whisperInitFromFileWithParams(file, params)
@@ -29,7 +29,7 @@ test "Init from file with params":
     whisperFree(ctx)
 
 test "Init from buffer with params":
-    let file = "ggml-base.en.bin"
+    let file = "ggml-base.bin"
     var 
         f = newFileStream(file, fmRead)
         buffer: string
