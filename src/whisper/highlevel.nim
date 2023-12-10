@@ -22,6 +22,7 @@ type
         ## Wraps libwhisper's context to be used in Nim
         ## 
         context: ptr WhisperContext
+    ConvFunc = proc(): seq[cfloat]
 
 proc newDefaultOptions*(file: string): WhisperOptions =
     ## Create a new `WhisperOptions` object,
@@ -50,13 +51,8 @@ proc newWhisper*(options: WhisperOptions): Whisper =
     if result.context == nil:
         raise newException(WhisperAllocationError, "Unable to initialize Whisper context")
 
-proc infer*(whisper: Whisper; audioSamplePath: string; language: string = "en"; translate: bool = false): string =
-    ## Transcribe from `audioSamplePath`, assuming the audio is in language `language`.
-    ## Returns the transcribed Text.
-    ## 
-    ## **Note**: `audioSamplePath` must be a 16 kHz WAV file
-    ## 
-    ## **Note**: Blocking
+proc sharedLogic(whisper: Whisper; conv: ConvFunc; language: string; translate: bool): string =
+    ## Shared logic
     ## 
     if language != "auto" and whisperLangId(language.cstring) == -1:
         raise newException(WhisperInferenceError, language & " is unknown")
@@ -66,12 +62,34 @@ proc infer*(whisper: Whisper; audioSamplePath: string; language: string = "en"; 
     var fullParams = whisperFullDefaultParams(WHISPER_SAMPLING_GREEDY)
     fullParams.language = language.cstring
     fullParams.translate = translate
-    var buffer = readWav(audioSamplePath)
+    var buffer = conv()
     if whisperFull(whisper.context, fullParams, buffer[0].addr, buffer.len.cint) != 0:
         raise newException(WhisperInferenceError, "Unable to transcribe from audio")
     let n = whisperFullNSegments(whisper.context)
     for i in countup(0 , n - 1):
         result &= whisperFullGetSegmentText(whisper.context, i.cint)
+
+proc infer*(whisper: Whisper; audioSamplePath: string; language: string = "en"; translate: bool = false): string =
+    ## Transcribe from `audioSamplePath`, assuming the audio is in language `language`.
+    ## Returns the transcribed Text.
+    ## 
+    ## **Note**: `audioSamplePath` must be a 16 kHz WAV file
+    ## 
+    ## **Note**: Blocking
+    ## 
+    proc custom(): seq[cfloat] =
+        result = readWav(audioSamplePath)
+    return whisper.sharedLogic(custom, language, translate)
+
+proc infer*(whisper: Whisper; audio: seq[float32]; language: string = "en"; translate: bool = false): string =
+    ## Same as the infer above except this one accepts a sequence of `float32`.
+    ## This delegates the reading and proper conversion of the audio to the caller.
+    ## 
+    proc custom(): seq[cfloat] = 
+        result = newSeq[cfloat]()
+        for sample in audio:
+            result.add(sample.cfloat)
+    return whisper.sharedLogic(custom, language, translate)
 
 proc `=destroy`(self: Whisper) =
     ## Deallocates the whisper context
