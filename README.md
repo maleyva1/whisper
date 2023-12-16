@@ -1,6 +1,6 @@
 # Nim bindings for libwhisper
 
-This package provides Nim bindings for `libwhisper`
+This package provides Nim bindings for `libwhisper` (1.5.0+)
 (AKA [Whisper.cpp](https://github.com/ggerganov/whisper.cpp)).
 
 There are two major bindings:
