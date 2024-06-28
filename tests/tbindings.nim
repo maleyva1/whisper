@@ -8,7 +8,7 @@
 import std/unittest
 import std/streams
 
-import whisper/bindings
+import whisper
 
 test "Full Params by Ref":
     var params = whisperFullDefaultParamsByRef(WHISPER_SAMPLING_GREEDY)

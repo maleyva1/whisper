@@ -12,7 +12,7 @@ type
     ModelLoadingKind = enum
         FromFile, FromBuffer
     WhisperOptions* = object ## libwhisper initialization options
-        params: WhisperContextParams
+        params: struct_whisper_context_params
         case mlKind: ModelLoadingKind:
             of FromFile:
                 filePath: string
@@ -21,7 +21,7 @@ type
     Whisper* = object ## \
         ## Wraps libwhisper's context to be used in Nim
         ## 
-        context: ptr WhisperContext
+        context: ptr struct_whisper_context 
     ConvFunc = proc(): seq[cfloat]
 
 proc newDefaultOptions*(file: string): WhisperOptions =

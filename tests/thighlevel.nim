@@ -1,7 +1,7 @@
 import std/unittest
 from std/os import fileExists
 
-import whisper/highlevel
+import whisper
 
 proc ensureModelExists(): void =
     if not fileExists("ggml-base.bin"):
