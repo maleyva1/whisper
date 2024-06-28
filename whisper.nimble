@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.1"
+version       = "1.0.0"
 author        = "Mark Leyva"
 description   = "Nim bindings for Whisper.cpp"
 license       = "MIT"
