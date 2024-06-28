@@ -15,22 +15,27 @@ requires "futhark >= 0.13.1"
 
 import std/distros
 
-before lib:
-    exec "git submodule update --init --recursive"
 
 task lib, "Build whisper.cpp":
-    exec "cd src/whisper.cpp && cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j $(nproc)"
+    withDir("src/whisper.cpp"):
+        if not fileExists("CMakeLists.txt"):
+            exec "git submodule update --init --recursive"
+        exec "cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j $(nproc)"
 
 task cleanlib, "Clean whisper.cpp":
-    if dirExsts("src/whisper.cpp/build"):
-        exec "cd src/whisper.cpp && cmake --build build --clean-first"
-    else:
-        echo "libwhisper not built. Doing nothing..."
+    withDir("src/whisper.cpp"):
+        if dirExists("build"):
+            exec "cmake --build build -- clean"
+        else:
+            echo "libwhisper not built. Doing nothing..."
 
 task downloadModel, "Download model":
     if defined(windows):
-        exec "cd src/whisper.cpp/models && download-ggml-model.cmd base.en"
-    elif defined(linux) or defineD(windows):
-        exec "download-ggml-model.sh base.en"
+        withDir("src/whisper.cpp/models"):
+            exec "./download-ggml-model.cmd base.en"
+    elif defined(linux) or defined(macosx):
+        withDir("src/whisper.cpp/models"):
+            exec "./download-ggml-model.sh base.en"
     else:
-        echo "Unsupport OS"
+        echo "Unsupported OS"
+    mvFile("src/whisper.cpp/models/ggml-base.en.bin", thisDir() & "/ggml-base.en.bin")
