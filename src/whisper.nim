@@ -1,5 +1,5 @@
-import whisper/highlevel
-import whisper/bindings
+import internals/bindings
+import internals/highlevel
 
 export highlevel
 export bindings
