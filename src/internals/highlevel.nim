@@ -96,19 +96,19 @@ proc infer*(whisper: Whisper; audio: seq[float32]; language: string = "en"; tran
             result.add(sample.cfloat)
     return whisper.sharedLogic(custom, language, translate)
 
-proc `=destroy`(self: Whisper) =
+proc `=destroy`*(self: Whisper) =
     ## Deallocates the whisper context
     ## 
     if self.context != nil:
         whisperFree(self.context)
 
-proc `=sink`(dest: var Whisper; source: Whisper) =
+proc `=wasMoved`*(self: var Whisper) =
+    self.context = nil
+
+proc `=sink`*(dest: var Whisper; source: Whisper) =
     `=destroy`(dest)
     wasMoved(dest)
     dest.context = source.context
 
-proc `=copy`(dest: var Whisper; source: Whisper) =
-    if dest.context != source.context:
-        `=destroy`(dest)
-        wasMoved(dest)
-        copyMem(dest.context, source.context, sizeof(source.context))
+proc `=copy`*(dest: var Whisper; source: Whisper) {.error.}
+proc `=dup`*(self: Whisper): Whisper {.error.}

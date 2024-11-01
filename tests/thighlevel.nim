@@ -11,15 +11,21 @@ proc ensureModelExists(): void =
 
 test "Liftime tracking hooks":
     ensureModelExists()
-    let options = newDefaultOptions("ggml-base.bin")
-    let 
-        w = newWhisper(options)
-        x: Whisper = w
-        y: Whisper = x
-        z: WHisper = y
-    try:
-        discard z.infer("samples/jfk.wav")
-    except WhisperInferenceError:
+    proc helper(): bool =
+        ## std/unitest causes scoping issues
+        ## This helper proc wraps the lifetime tracking hooks
+        result = true
+        let options = newDefaultOptions("ggml-base.bin")
+        var
+            w = newWhisper(options)
+            x = ensureMove w
+            y = ensureMove x
+            z = ensureMove y
+        try:
+            discard z.infer("samples/jfk.wav")
+        except WhisperInferenceError:
+            result = false
+    if not helper():
         fail()
 
 test "End to end usage":
