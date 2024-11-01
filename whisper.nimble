@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.0.0"
+version       = "1.1.0"
 author        = "Mark Leyva"
 description   = "Nim bindings for Whisper.cpp"
 license       = "MIT"
@@ -14,7 +14,6 @@ requires "wave >= 1.1.0"
 requires "futhark >= 0.13.1"
 
 import std/distros
-
 
 task lib, "Build whisper.cpp":
     withDir("src/whisper.cpp"):
